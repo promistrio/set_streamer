@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 					
 					//check existing of link
 					if (links.find(stream_num) != links.end() ) {
-						// if link object created
+						// if link object created, send packet
 						sendMessage(stream_num, (const char*)&rsp.stream, stream_sz * 4);
 					}
 					else {

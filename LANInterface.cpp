@@ -29,7 +29,6 @@ bool LANInterface::Init_LANInterface(int port)
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-	//printf("Initialised.\n");
 
 	//create socket
 	if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR)
@@ -47,30 +46,6 @@ bool LANInterface::Init_LANInterface(int port)
 	this->_isConnectionSuccess = true;
 	printf("Connection success on port %d \n", this->_port);
 
-	//start communication
-	/*while (1)
-	{
-		//send the message
-		if (sendto(s, message, strlen(message), 0, (struct sockaddr*) & si_other, slen) == SOCKET_ERROR)
-		{
-			printf("sendto() failed with error code : %d", WSAGetLastError());
-			exit(EXIT_FAILURE);
-		}
-
-		//receive a reply and print it
-		//clear the buffer by filling null, it might have previously received data
-		memset(buf, '\0', BUFLEN);
-		//try to receive some data, this is a blocking call
-		if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr*) & si_other, &slen) == SOCKET_ERROR)
-		{
-			printf("recvfrom() failed with error code : %d", WSAGetLastError());
-			exit(EXIT_FAILURE);
-		}
-
-		puts(buf);
-	}*/
-
-	//Do-While Loop to send and recieve data
 	char buf[BUFSIZE];
 	std::string userInput;
 
@@ -86,14 +61,6 @@ int LANInterface::sendPacket(const char* buf, int bufsize)
 		printf("sendto() failed with error code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-
-	/*int sendResult = sendto(sock, buf, bufsize, 0x40, (sockaddr*)&server_addr, server_len);
-	if (sendResult == SOCKET_ERROR)
-	{
-		std::cerr << "Can't send msg, Err #" << WSAGetLastError() << std::endl;
-		//cin.get();
-		return 0;
-	}*/
 	return 1;
 }
 
