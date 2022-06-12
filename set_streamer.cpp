@@ -9,7 +9,7 @@
 #include <sys/types.h> 
 using namespace std;
 
-int port_counter = SERVER_PORT;
+int port_counter = 50000;
 
 struct tEmuRSP
 {
@@ -29,14 +29,13 @@ LANInterface link2;*/
 
 std::map<int, LANInterface> links;
 
-bool initLink(int stream) {
-	links[stream] = port_counter;
-	port_counter++;
-
+void initLink(int stream) {
 	// TODO: may be there is a problem with port checking
+
+	std::cout << "create socket interface" << std::endl;
 	links[stream] = LANInterface(port_counter);
 
-	return true;
+	port_counter++;
 }
 
 void sendMessage(int stream_num, const char* buf, int bufsize) {
@@ -51,14 +50,6 @@ void sendMessage(int stream_num, const char* buf, int bufsize) {
 
 int main(int argc, char* argv[])
 {
-
-	/*if (!initLink())
-	{
-		std::cout << "Can't init stream" << std::endl;
-		while (true);
-		return 1;
-	}*/
-
 	std::ofstream wf("videodata.bin", ios::out | ios::binary);
 	if (!wf) {
 		cout << "Cannot open file!" << endl;
@@ -90,7 +81,7 @@ int main(int argc, char* argv[])
 				int stream_sz = 0xFFFFFF & rsp.arg[4];
 				int stream_num = rsp.arg[4] >> 24;
 
-				//printf("%d\n", stream_num);
+				printf("%d\n", stream_num);
 				
 				//std::cout << "stream_num " << stream_num << " " << stream_sz << std::endl;
 				//if ((stream_num == 0 || stream_num == 1 || stream_num == 2 || stream_num == 3) && stream_sz)
@@ -106,11 +97,13 @@ int main(int argc, char* argv[])
 					//check existing of link
 					if (links.find(stream_num) != links.end() ) {
 						// if link object created, send packet
+						printf("if link object created, send packet \n");
 						sendMessage(stream_num, (const char*)&rsp.stream, stream_sz * 4);
 					}
 					else {
 						// object is not exist. Lets create it and send packet
 						initLink(stream_num);
+						printf("object is not exist. Lets create it and send packet \n");
 						sendMessage(stream_num, (const char*)&rsp.stream, stream_sz * 4);
 					}
 

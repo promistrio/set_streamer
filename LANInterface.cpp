@@ -23,7 +23,6 @@ bool LANInterface::Init_LANInterface(int port)
 	WSADATA wsa;
 
 	//Initialise winsock
-	printf("\nInitialising Winsock...");
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf("Failed. Error Code : %d", WSAGetLastError());
@@ -58,8 +57,10 @@ int LANInterface::sendPacket(const char* buf, int bufsize)
 {
 	if (sendto(sock, buf, bufsize, 0, (struct sockaddr*) & server_addr, sizeof(server_addr)) == SOCKET_ERROR)
 	{
-		printf("sendto() failed with error code : %d", WSAGetLastError());
-		exit(EXIT_FAILURE);
+		printf("sendto() failed with error code : %d \n", WSAGetLastError());
+
+		printf("on port %d \n", this->_port);
+		//exit(EXIT_FAILURE);
 	}
 	return 1;
 }
@@ -67,7 +68,7 @@ int LANInterface::sendPacket(const char* buf, int bufsize)
 
 LANInterface::LANInterface()
 {
-	Init_LANInterface(SERVER_PORT);
+	std::cout << "do not try use this constructor" << std::endl;
 }
 
 bool LANInterface::isConnected()
@@ -83,6 +84,7 @@ LANInterface::LANInterface(int port)
 
 LANInterface::~LANInterface()
 {
+	std::cout << "destructor" << std::endl;
 	closesocket(sock);
 	WSACleanup();
 }
