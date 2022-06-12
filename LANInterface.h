@@ -9,12 +9,16 @@ class LANInterface
 {
 public:
 	LANInterface();
+	LANInterface(int port);
 	~LANInterface();
 
-	bool Init_LANInterface();
-	int SendPacket(const char* buf, int bufsize);
+	bool isConnected();
+	bool Init_LANInterface(int port);
+	int sendPacket(const char* buf, int bufsize);
 
 private:
+	int _port = 0;
+	bool _isConnectionSuccess = false;
 	SOCKET sock;
 	sockaddr_in server_addr, client_addr;
 	int server_len;

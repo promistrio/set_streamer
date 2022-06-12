@@ -3,10 +3,13 @@
 #include  "bulk.h"
 #include "LANInterface.h"
 #include <fstream>
+#include <map>
 
 
 #include <sys/types.h> 
 using namespace std;
+
+int port_counter = SERVER_PORT;
 
 struct tEmuRSP
 {
@@ -21,17 +24,40 @@ struct tEmuRSP
 int sockfd;
 struct sockaddr_in servaddr;*/
 
-LANInterface link;
+/*LANInterface link;
+LANInterface link2;*/
+
+std::map<int, LANInterface> links;
+
+bool initLink(int stream) {
+	links[stream] = port_counter;
+	port_counter++;
+
+	// TODO: may be there is a problem with port checking
+	links[stream] = LANInterface(port_counter);
+
+	return true;
+}
+
+void sendMessage(int stream_num, const char* buf, int bufsize) {
+	if (links[stream_num].isConnected()) {
+		links[stream_num].sendPacket(buf, bufsize);
+	}
+	else {
+		printf("Error: socket is not connecting");
+	}
+}
 
 
 int main(int argc, char* argv[])
 {
-	if (!link.Init_LANInterface())
+
+	/*if (!initLink())
 	{
 		std::cout << "Can't init stream" << std::endl;
 		while (true);
 		return 1;
-	}
+	}*/
 
 	std::ofstream wf("videodata.bin", ios::out | ios::binary);
 	if (!wf) {
@@ -68,28 +94,46 @@ int main(int argc, char* argv[])
 				
 				//std::cout << "stream_num " << stream_num << " " << stream_sz << std::endl;
 				//if ((stream_num == 0 || stream_num == 1 || stream_num == 2 || stream_num == 3) && stream_sz)
-				if ((stream_num == 2 ) && stream_sz)
+
+				if (((stream_num == 0)  ||
+					 (stream_num == 1)  ||
+					 (stream_num == 2)  || 
+					 (stream_num == 3)  ||
+					 (stream_num == 4)) && stream_sz)
 				{
 					uint32_t* ptr = rsp.stream;
 					
-						//std::cout << "readed " << stream_sz * 4 << std::endl; //4 = sizeof(int)
-						link.SendPacket((const char*)&rsp.stream, stream_sz * 4);
-						/*wf.write((const char*)&rsp.stream, stream_sz * 4);
-						i++;
-						std::cout << i << endl;
-						if (i > 1000) {
+					//check existing of link
+					if (links.find(stream_num) != links.end() ) {
+						// if link object created
+						sendMessage(stream_num, (const char*)&rsp.stream, stream_sz * 4);
+					}
+					else {
+						// object is not exist. Lets create it and send packet
+						initLink(stream_num);
+						sendMessage(stream_num, (const char*)&rsp.stream, stream_sz * 4);
+					}
 
-							wf.close();
-							return -1;
-						}*/
+					//std::cout << "readed " << stream_sz * 4 << std::endl; //4 = sizeof(int)
+					
+
+
+					/*wf.write((const char*)&rsp.stream, stream_sz * 4);
+					i++;
+					std::cout << i << endl;
+					if (i > 1000) {
+
+						wf.close();
+						return -1;
+					}*/
 						
-						//for expample: we are going to send stream thru udp socket
-						/*sendto(sockfd,
-							(const char*)&rsp.stream,
-							stream_sz * 4,
-							MSG_DONTWAIT,
-							(const struct sockaddr*)&servaddr,
-							sizeof(servaddr));*/
+					//for expample: we are going to send stream thru udp socket
+					/*sendto(sockfd,
+						(const char*)&rsp.stream,
+						stream_sz * 4,
+						MSG_DONTWAIT,
+						(const struct sockaddr*)&servaddr,
+						sizeof(servaddr));*/
 					
 				}
 			}

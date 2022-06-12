@@ -14,8 +14,11 @@
 #include "LANInterface.h"
 
 
-bool LANInterface::Init_LANInterface()
+
+bool LANInterface::Init_LANInterface(int port)
 {
+
+	this->_port = port;
 
 	WSADATA wsa;
 
@@ -26,7 +29,7 @@ bool LANInterface::Init_LANInterface()
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-	printf("Initialised.\n");
+	//printf("Initialised.\n");
 
 	//create socket
 	if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR)
@@ -38,8 +41,11 @@ bool LANInterface::Init_LANInterface()
 	//setup address structure
 	memset((char*)& server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(SERVER_PORT);
+	server_addr.sin_port = htons(this->_port);
 	InetPton(AF_INET, _T(SERVER), &server_addr.sin_addr.s_addr);
+
+	this->_isConnectionSuccess = true;
+	printf("Connection success on port %d \n", this->_port);
 
 	//start communication
 	/*while (1)
@@ -72,7 +78,8 @@ bool LANInterface::Init_LANInterface()
 
 }
 
-int LANInterface::SendPacket(const char* buf, int bufsize)
+
+int LANInterface::sendPacket(const char* buf, int bufsize)
 {
 	if (sendto(sock, buf, bufsize, 0, (struct sockaddr*) & server_addr, sizeof(server_addr)) == SOCKET_ERROR)
 	{
@@ -93,7 +100,17 @@ int LANInterface::SendPacket(const char* buf, int bufsize)
 
 LANInterface::LANInterface()
 {
+	Init_LANInterface(SERVER_PORT);
+}
 
+bool LANInterface::isConnected()
+{
+	return this->_isConnectionSuccess;
+}
+
+LANInterface::LANInterface(int port)
+{
+	Init_LANInterface(port);
 }
 
 
