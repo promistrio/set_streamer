@@ -50,12 +50,6 @@ void sendMessage(int stream_num, const char* buf, int bufsize) {
 
 int main(int argc, char* argv[])
 {
-	std::ofstream wf("videodata.bin", ios::out | ios::binary);
-	if (!wf) {
-		cout << "Cannot open file!" << endl;
-		while (true);
-		return 1;
-	}
 
 	bool res = Usb_Init(); // PID_RX = 0x8887;PID_TX=0x8888
 	if (res)
